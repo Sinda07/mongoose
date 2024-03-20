@@ -14,41 +14,98 @@ mongoose
 
 app.use(express.json());
 
-const arrayofPeople = [
-  { name: "Alice", age: 30, favoriteFoods: [Pasta] },
-  { name: "Paul", age: 25, favoriteFoods: [Pizza] },
-];
+// Create and save a record
+const createPerson = (name, age, favoriteFoods, done) => {
+  const person = new Person({ name, age, favoriteFoods });
+  person.save((err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
 
-Person.create(arrayofPeople, function (err, people) {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log(people);
-  }
-});
-Person.find({ name: "John Doe" }, function (err, people) {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log(people);
-  }
-});
+// Create many records
+const createManyPeople = (arrayOfPeople, done) => {
+  Person.create(arrayOfPeople, (err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
 
-Person.findOne({ favoriteFoods: "Sushi" }, function (err, person) {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log(person);
-  }
-});
+// Search database by name
+const findPeopleByName = (personName, done) => {
+  Person.find({ name: personName }, (err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
 
-const personId = "";
-Person.findById(personId, function (err, person) {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log(person);
-  }
-});
+// Find one person by food
+const findOnePersonByFood = (food, done) => {
+  Person.findOne({ favoriteFoods: food }, (err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
+
+// Search database by ID
+const findPersonById = (personId, done) => {
+  Person.findById(personId, (err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
+
+// Update a person's favorite foods
+const findEditThenSave = (personId, done) => {
+  Person.findById(personId, (err, person) => {
+    if (err) return console.error(err);
+    person.favoriteFoods.push("hamburger");
+    person.save((err, data) => {
+      if (err) return console.error(err);
+      done(null, data);
+    });
+  });
+};
+
+// Update a person's age by name
+const findAndUpdate = (personName, done) => {
+  Person.findOneAndUpdate(
+    { name: personName },
+    { age: 20 },
+    { new: true },
+    (err, data) => {
+      if (err) return console.error(err);
+      done(null, data);
+    }
+  );
+};
+
+// Delete one person by ID
+const removeById = (personId, done) => {
+  Person.findByIdAndRemove(personId, (err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
+
+// Delete all people by name
+const removeManyPeople = (name, done) => {
+  Person.remove({ name: name }, (err, data) => {
+    if (err) return console.error(err);
+    done(null, data);
+  });
+};
+
+module.exports = {
+  createPerson,
+  createManyPeople,
+  findPeopleByName,
+  findOnePersonByFood,
+  findPersonById,
+  findEditThenSave,
+  findAndUpdate,
+  removeById,
+  removeManyPeople,
+};
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
